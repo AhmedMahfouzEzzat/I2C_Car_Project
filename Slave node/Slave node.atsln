@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Atmel Studio Solution File, Format Version 11.00
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Slave node", "Slave node\Slave node.cproj", "{FB393AAE-81A6-4241-8D52-79D1E207A8DB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FB393AAE-81A6-4241-8D52-79D1E207A8DB}.Debug|AVR.ActiveCfg = Debug|AVR
+		{FB393AAE-81A6-4241-8D52-79D1E207A8DB}.Debug|AVR.Build.0 = Debug|AVR
+		{FB393AAE-81A6-4241-8D52-79D1E207A8DB}.Release|AVR.ActiveCfg = Release|AVR
+		{FB393AAE-81A6-4241-8D52-79D1E207A8DB}.Release|AVR.Build.0 = Release|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
