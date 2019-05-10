@@ -4,6 +4,8 @@
 
 ADC.c
 
+hc-sr04.c
+
 I2C.c
 
 Master node.c

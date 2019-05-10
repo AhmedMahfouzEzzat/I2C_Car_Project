@@ -140,6 +140,12 @@
     <Compile Include="ADC.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="hc-sr04.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hc-sr04.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="I2C.c">
       <SubType>compile</SubType>
     </Compile>

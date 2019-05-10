@@ -9,7 +9,7 @@ float dist;
 uint16_t us_per_count;
 
 
-ISR(TIMER1_COMPA_vect){
+ISR(TIMER1_COMPB_vect){
 
     //Generate a 12us pulse to trigger the HR-SR04
     PORTB ^= ( 1 << PORTB1);
@@ -50,13 +50,13 @@ void init_ultrasonic_sensor(){
     TCCR1B |= (1<<WGM12); 
 
     //read Int. at: rising edge, falling edge
-	TIMSK1 |= (1<<ICIE1) | (1<<OCIE1A);
+	TIMSK1 |= (1<<ICIE1) | (1<<OCIE1B);
 
     //read Int. at rising edge
 	TCCR1B |= (1<<ICES1);
 
     //calculate TOP (70ms runtime for one cycle): 16MHz/64 = 25000 count/sec. = 25000/1000 = 2500 count/us / 100*70 = 17500 count/70ms
-    OCR1A = 17500;
+    OCR1B = 17500;
 
     //CPU-speed / Prescale = cycles/sec. 1sec/ freq./sec. = 4 (t= 4us/cycle)
     us_per_count = 4;

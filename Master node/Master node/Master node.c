@@ -6,9 +6,9 @@
 #include "USART.h"
 #include "wiring.h"
 #include "queue.h"
-//#include "I2C.h"
-//#include "ADC.h"
-//#include "hc-sr04.h"
+#include "I2C.h"
+#include "ADC.h"
+#include "hc-sr04.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
