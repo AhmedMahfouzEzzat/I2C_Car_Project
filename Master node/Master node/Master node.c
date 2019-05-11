@@ -71,7 +71,7 @@ void ultrsonic_task()
 		if(dist < 20)
 		{
 			dist &= ~ ID_MASK ;
-			dist |= ultra_S_ID ; //add massege id in last 2 bit 
+			dist |= ultra_S_ID ; //add message id in last 2 bit 
 			xQueueSendToFront(xQueue,&dist,TICKS_TO_WAIT);
 		}
 		vTaskDelay( xDelay );
@@ -82,7 +82,7 @@ void ultrsonic_task()
 void task_ADC()
 {
 	INIT_ADC();
-	const TickType_t xDelay = 50 / portTICK_PERIOD_MS;
+	const TickType_t xDelay = 50 / portTICK_PERIOD_MS;  //time to wait
 	for (;;)
 	{
 		unsigned char data = Analog_Read(0);
@@ -90,7 +90,7 @@ void task_ADC()
 		if(data>30)
 		{
 			data &= ~ ID_MASK ;
-			data |= tempr_ID ;
+			data |= tempr_ID ;  //add message id in last 2 bit  
 			xQueueSendToFront(xQueue,&data,TICKS_TO_WAIT);
 		}
 		
