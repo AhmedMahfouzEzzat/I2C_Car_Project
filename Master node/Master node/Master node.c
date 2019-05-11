@@ -14,31 +14,45 @@
 #include <stdlib.h>
 #include <avr/io.h>
 #include <util/delay.h>
+#define Master
+#define ultra_S_ID 0x00
+#define tempr_ID 0x40
+#define on_off_ID 0x80 
+#define ID_MASK 0xc0
 
-static void vTimerISR();
-
+static void ON_OFF_ISR();
+volatile unsigned char  flag = 0;
 /* The tasks to be created.  Two instances are created of the sender task while
 only a single instance is created of the receiver task. */
 void task_I2C();
-void task_Generator();//Just for testing
+//void task_Generator();//Just for testing
 void task_ADC();
+void ultrsonic_task();
+void ON_OFF_task();
 
 #define LONG_TIME 0xffff
 #define TICKS_TO_WAIT    10
 
 //-----------------------------------------------------------
-TaskHandle_t TaskHandle_1;
-TaskHandle_t TaskHandle_2;
+TaskHandle_t i2c_Handle;
+TaskHandle_t adc_Handle;
+TaskHandle_t ultr_Handle;
+TaskHandle_t on_off_Handle;
 
-SemaphoreHandle_t sem;
+//SemaphoreHandle_t sem;
 QueueHandle_t xQueue;
 int main(void)
 { 
 	cli(); 
 	// initialization 
-	xTaskCreate(task_I2C,"task_I2C",0x100,NULL,0x01,NULL);
-	xTaskCreate(task_Generator,"task_Generator",0x100,NULL,0x02,NULL);
-	xTaskCreate(task_ADC,"task_ADC",0x100,NULL,0x02,NULL);
+	//interrupt mode (trigger on low input, any change, rising edge, or falling edge)
+	attachInterrupt(0, ON_OFF_ISR, 3); //faling 
+	//sem =  xSemaphoreCreateBinary();
+	xTaskCreate(task_I2C,"task_I2C",0x100,NULL,0x04,i2c_Handle);
+	//xTaskCreate(task_Generator,"task_Generator",0x100,NULL,0x02,NULL);
+	xTaskCreate(task_ADC,"task_ADC",0x100,NULL,0x01,adc_Handle);
+	xTaskCreate(ultrsonic_task,"task_ultra",0x100,NULL,0x00,ultr_Handle);
+	xTaskCreate(ON_OFF_task,"task_on_off",0x100,NULL,0x03,on_off_Handle);
 	sei();
 	vTaskStartScheduler();
 	 
@@ -46,17 +60,40 @@ int main(void)
 	return 0;
 }
 
+void ultrsonic_task()
+{
+	init_ultrasonic_sensor();
+	const TickType_t xDelay = 50 / portTICK_PERIOD_MS;
+	int dist = 0;
+	for (;;)
+	{
+		dist=read_dist();
+		if(dist < 20)
+		{
+			dist &= ~ ID_MASK ;
+			dist |= ultra_S_ID ; //add massege id in last 2 bit 
+			xQueueSendToFront(xQueue,&dist,TICKS_TO_WAIT);
+		}
+		vTaskDelay( xDelay );
+	}
+
+}
 
 void task_ADC()
 {
 	INIT_ADC();
-	const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
+	const TickType_t xDelay = 50 / portTICK_PERIOD_MS;
 	for (;;)
 	{
 		unsigned char data = Analog_Read(0);
 		data =(data*500)/1023;
-		data |= 0x80;
-		xQueueSendToFront(xQueue,&data,0);
+		if(data>30)
+		{
+			data &= ~ ID_MASK ;
+			data |= tempr_ID ;
+			xQueueSendToFront(xQueue,&data,TICKS_TO_WAIT);
+		}
+		
 		vTaskDelay( xDelay );
 	}
 }
@@ -74,22 +111,33 @@ void task_I2C()
 	{
 		if( uxQueueMessagesWaiting( xQueue ) != 0 )
 		{
-			xQueueReceive(xQueue,&data,0);
+			xQueueReceive(xQueue,&data,TICKS_TO_WAIT);
 			i2c_write(data); //data
 		}
+		
 		vTaskDelay( xDelay );
 	}
 	i2c_stop();
 }
-
-void task_Generator()
+void ON_OFF_task()
 {
-	unsigned char counter = 'a';
-	const TickType_t xDelay = 90 / portTICK_PERIOD_MS;
-	for (;;)
+	if(!flag)
 	{
-		xQueueSendToFront(xQueue,&counter,0);
-		counter = (counter == 'z' ? 0 : counter+1);
-		vTaskDelay( xDelay );
+		vTaskSuspend(ultr_Handle);
+		vTaskSuspend(adc_Handle);
 	}
+	else
+	{
+		vTaskResume(ultr_Handle);
+		vTaskResume(adc_Handle);
+	}
+	vTaskSuspend(NULL);
+}
+
+void ON_OFF_ISR()
+{
+	flag = !flag;
+	flag |= on_off_ID;
+	xQueueSendToFrontFromISR(xQueue,&flag,TICKS_TO_WAIT);
+	xTaskResumeFromISR(on_off_Handle);
 }

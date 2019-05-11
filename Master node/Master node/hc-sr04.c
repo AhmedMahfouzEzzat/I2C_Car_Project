@@ -66,6 +66,6 @@ void init_ultrasonic_sensor(){
 
 }
 
-float read_dist(){
-    return dist;
+int read_dist(){
+    return (int)dist;
 }

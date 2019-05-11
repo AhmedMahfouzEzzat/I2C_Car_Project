@@ -10,9 +10,14 @@
 #include "LCD.h"
 #include "PWM.h"
 
+#define ultra_S_ID 0x00
+#define tempr_ID 0x40
+#define on_off_ID 0x80
+#define ID_MASK 0xc0
+
 void task_LCD();
 void task_PWM();
-
+void ON_OFF_task();
 QueueHandle_t xQueueLCD;
 QueueHandle_t xQueuePWM;
 
