@@ -45,6 +45,7 @@ int main(void)
 { 
 	cli(); 
 	// initialization 
+	USART_init();
 	//interrupt mode (trigger on low input, any change, rising edge, or falling edge)
 	attachInterrupt(0, ON_OFF_ISR, 3); //faling 
 	//sem =  xSemaphoreCreateBinary();
@@ -68,6 +69,7 @@ void ultrsonic_task()
 	for (;;)
 	{
 		dist=read_dist();
+		USART_send(dist);
 		if(dist < 20)
 		{
 			dist &= ~ ID_MASK ;
